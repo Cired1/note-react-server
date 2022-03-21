@@ -2,7 +2,6 @@ const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/userModel");
-const { nextTick } = require("process");
 
 const register = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
@@ -84,7 +83,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    const resetUrl = `http://localhost:3000/passwordreset/${resetToken}`;
+    const resetUrl = `http://localhost:3000/resetpassword/${resetToken}`;
 
     const message = `
         <h1>You have requested a password reset</h1>
@@ -137,7 +136,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     res.status(201).json({
         success: true,
-        data: "Password Reset Succes"
+        data: "Password Reset Success"
     })
 
 })
