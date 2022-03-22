@@ -12,6 +12,16 @@ const register = asyncHandler(async (req, res) => {
         throw new Error("Please add all fields");
     }
 
+    if (username.length < 5 || username.length > 20) {
+        res.status(400);
+        throw new Error("Username should be between 5-20 characters");
+    }
+
+    if (password.length < 6) {
+        res.status(400);
+        throw new Error("Password should be at least 6 characters");
+    }
+
     //Check if user exists
     const userExists = await User.findOne({ username });
 
@@ -73,6 +83,11 @@ const login = asyncHandler(async (req, res) => {
 const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
+    if (!email) {
+        res.status(400);
+        throw new Error("Please provide an email");
+    }
+
     const user = await User.findOne({ email })
 
     if (!user) {
@@ -87,8 +102,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     const message = `
         <h1>You have requested a password reset</h1>
-        <p>Please go to this link to reset your password</p>
-        <a href=${resetUrl} clicktracking=off>${resetUrl}</a> 
+        <p>Please go to this <a href=${resetUrl} clicktracking=off>Link</a> to reset your password</p>
     `
 
     try {
@@ -100,7 +114,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: "Email sent"
+            message: "We have sent an email with the instruction for recover your account"
         })
     } catch (error) {
         user.resetPasswordToken = undefined;
@@ -116,6 +130,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
 })
 
 const resetPassword = asyncHandler(async (req, res) => {
+    const { password: newPassword } = req.body;
+
     const resetPasswordToken = crypto.createHash("sha256").update(req.params.resetToken).digest("hex");
 
     const user = await User.findOne({
@@ -128,6 +144,16 @@ const resetPassword = asyncHandler(async (req, res) => {
         throw new Error("Invalid Reset Token");
     }
 
+    if (!newPassword) {
+        res.status(400);
+        throw new Error("Provide a password");
+    }
+
+    if (newPassword.length < 6) {
+        res.status(400);
+        throw new Error("Password must be at least 6 characters");
+    }
+
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
@@ -136,15 +162,17 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     res.status(201).json({
         success: true,
-        data: "Password Reset Success"
+        message: "Password has been changed succesfully"
     })
 
 })
 
 const sendToken = (user, statusCode, res) => {
+    const { username } = user;
     const token = user.getSignedToken();
     res.status(statusCode).json({
         success: true,
+        message: `Welcome ${username}`,
         token
     })
 }
