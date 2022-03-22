@@ -16,7 +16,7 @@ const createNote = asyncHandler(async (req, res) => {
 
     if (!title || !content) {
         res.status(400);
-        throw new Error("Please fill all the text fields");
+        throw new Error("Please add all text fields");
     }
 
     const note = await Note.create({
