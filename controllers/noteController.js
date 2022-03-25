@@ -13,6 +13,12 @@ const getNotes = asyncHandler(async (req, res) => {
 const getNote = asyncHandler(async (req, res) => {
     const { noteId: id } = req.params;
     const note = await Note.findById(id);
+
+    if (!note) {
+        res.status(400);
+        throw new Error("Note not found");
+    }
+
     res.status(200).json({
         success: true,
         data: note
