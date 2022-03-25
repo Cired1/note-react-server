@@ -10,6 +10,15 @@ const getNotes = asyncHandler(async (req, res) => {
     });
 })
 
+const getNote = asyncHandler(async (req, res) => {
+    const { noteId: id } = req.params;
+    const note = await Note.findById(id);
+    res.status(200).json({
+        success: true,
+        data: note
+    });
+})
+
 const createNote = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
     const { id } = req.user;
@@ -103,6 +112,7 @@ const deleteNote = asyncHandler(async (req, res) => {
 
 module.exports = {
     getNotes,
+    getNote,
     createNote,
     updateNote,
     deleteNote
